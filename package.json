@@ -4,7 +4,7 @@
   "description": "creates keywords from document properties",
   "version": "0.0.1",
   "repository": {
-    "url": ""
+    "url": "git://github.com/aheckmann/mongoose-keywordize.git"
   },
   "scripts": {
     "test": "make test"
