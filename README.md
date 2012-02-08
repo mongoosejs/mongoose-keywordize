@@ -62,7 +62,7 @@ The optional function will be executed within the context of the document meanin
 Either a an Array or single string may be returned from the function and will be pushed onto the keywords array.
 
 ## Mongoose Version
->= 2.x
+`>= 2.x`
 
 [LICENCE](https://github.com/aheckmann/mongoose-keywordize/blob/master/LICENSE)
 
