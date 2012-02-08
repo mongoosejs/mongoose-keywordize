@@ -1,0 +1,21 @@
+{
+  "author": "Aaron Heckmann <aaron.heckmann+github@gmail.com>",
+  "name": "mongoose-keywordize",
+  "description": "creates keywords from document properties",
+  "version": "0.0.1",
+  "repository": {
+    "url": ""
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "engines": {
+    "node": "~0.4.x < 0.7.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mongoose": "2.5.5",
+    "mocha": "0.10.1",
+    "should": "0.5.1"
+  }
+}
