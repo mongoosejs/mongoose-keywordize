@@ -61,6 +61,10 @@ The optional function will be executed within the context of the document meanin
 
 Either a an Array or single string may be returned from the function and will be pushed onto the keywords array.
 
+## Casing
+
+By default mongoose-keywordize lowercases the keywords. To preserve casing pass the `upper: true` option to the plugin.
+
 ## Mongoose Version
 `>= 2.x`
 
