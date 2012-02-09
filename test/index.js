@@ -73,6 +73,23 @@ describe('plugin', function () {
       var p = new Person({ name: { last: ' smith  ' }});
       p.keywordize()[0].should.equal('smith');
     });
+
+    it('should lowercase the keywords', function () {
+      var p = new Person({ name: { last: 'SmiTh' }});
+      p.keywordize()[0].should.equal('smith');
+    });
+
+    it('should not lowercase keywords', function () {
+      var s = new Schema({
+          name: String
+      });
+      var opts = { fields: 'name', upper: true };
+      s.plugin(keywords, opts);
+      var A = mongoose.model('A', s);
+      var a = new A;
+      a.name = 'Stravinsky'
+      a.keywordize()[0].should.equal('Stravinsky');
+    });
   });
 
   describe('hooks', function () {
