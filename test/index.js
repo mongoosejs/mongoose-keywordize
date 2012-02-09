@@ -28,6 +28,10 @@ describe('plugin', function () {
     mongoose.connection.on('open', next);
   });
 
+  it('should have a version', function () {
+    keywords.should.have.property('version');
+  });
+
   it('should create a keywords property of type array', function () {
     Person.schema.path('keywords').casterConstructor.name.should.equal('SchemaString');
     var p = new Person;
@@ -52,6 +56,17 @@ describe('plugin', function () {
       p.keywords.length.should.equal(3);
       p.keywordize();
       p.keywords.length.should.equal(3);
+    });
+
+    it('should return the keywords', function () {
+      var p = new Person({ name: { last: 'agent', first: 'smith' }});
+      p.keywordize().should.be.an.instanceof(Array);
+      p.keywordize().length.should.equal(2);
+    });
+
+    it('should not allow duplicate keywords', function () {
+      var p = new Person({ name: { last: 'smith', first: 'smith' }});
+      p.keywordize().length.should.equal(1);
     });
   });
 
