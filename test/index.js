@@ -68,6 +68,11 @@ describe('plugin', function () {
       var p = new Person({ name: { last: 'smith', first: 'smith' }});
       p.keywordize().length.should.equal(1);
     });
+
+    it('should trim the keywords', function () {
+      var p = new Person({ name: { last: ' smith  ' }});
+      p.keywordize()[0].should.equal('smith');
+    });
   });
 
   describe('hooks', function () {
