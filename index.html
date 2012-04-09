@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Mongoose-keywordize by aheckmann</title>
+    
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Mongoose-keywordize</h1>
+        <p>Derives keywords from document properties</p>
+        <p class="view"><a href="https://github.com/aheckmann/mongoose-keywordize">View the Project on GitHub <small>aheckmann/mongoose-keywordize</small></a></p>
+        <ul>
+          <li><a href="https://github.com/aheckmann/mongoose-keywordize/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/aheckmann/mongoose-keywordize/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/aheckmann/mongoose-keywordize">Fork On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>Mongoose-keywordize Plugin</h1>
+
+<p>Provides keyword derivation for <a href="http://mongoosejs.com">Mongoose</a> documents.</p>
+
+<p><a href="http://travis-ci.org/aheckmann/mongoose-keywordize"><img src="https://secure.travis-ci.org/aheckmann/mongoose-keywordize.png" alt="Build Status"></a></p>
+
+<p>Options:</p>
+
+<ul>
+<li>fields: an array of paths you want watched and converted into keywords</li>
+<li>fn: a custom function to execute when keywordize() runs</li>
+</ul><p>Example:</p>
+
+<div class="highlight">
+<pre><span class="kd">var</span> <span class="nx">schema</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Schema</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">title</span><span class="o">:</span> <span class="nb">String</span> <span class="p">});</span>
+<span class="nx">schema</span><span class="p">.</span><span class="nx">plugin</span><span class="p">(</span><span class="nx">keywordize</span><span class="p">,</span> <span class="p">{</span> <span class="nx">fields</span><span class="o">:</span> <span class="s1">'name title'</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span> <span class="p">});</span>
+</pre>
+</div>
+
+
+<p>This will introduce a new <code>keywordize()</code> document method which detects if any of the passed fields have been modified and updates the new <code>keywords</code> property appropriately.</p>
+
+<p>Example:</p>
+
+<div class="highlight">
+<pre><span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">'Person'</span><span class="p">,</span> <span class="nx">schema</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">me</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Person</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">'aaron'</span> <span class="p">});</span>
+<span class="nx">me</span><span class="p">.</span><span class="nx">keywordize</span><span class="p">();</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">me</span><span class="p">.</span><span class="nx">keywords</span><span class="p">)</span> <span class="c1">// ['aaron']</span>
+</pre>
+</div>
+
+
+<p>The <code>keywordize</code> method is always called upon saving each document, auto-updating to the latest keywords.</p>
+
+<div class="highlight">
+<pre><span class="nx">me</span><span class="p">.</span><span class="nx">title</span> <span class="o">=</span> <span class="s1">'Mr'</span><span class="p">;</span>
+<span class="nx">me</span><span class="p">.</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">me</span><span class="p">.</span><span class="nx">keywords</span><span class="p">)</span> <span class="c1">// ['aaron', 'Mr']</span>
+<span class="p">})</span>
+</pre>
+</div>
+
+
+<p>One may also pass an optional function to run custom logic within the call to <code>keywordize</code>.</p>
+
+<div class="highlight">
+<pre>
+<span class="kd">var</span> <span class="nx">opts</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="nx">opts</span><span class="p">.</span><span class="nx">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'title'</span><span class="p">]</span>
+<span class="nx">opts</span><span class="p">.</span><span class="nx">fn</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">custom</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="s1">'Mister'</span> <span class="o">===</span> <span class="k">this</span><span class="p">.</span><span class="nx">title</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s1">'Mr'</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">schema</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Schema</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">title</span><span class="o">:</span> <span class="nb">String</span> <span class="p">});</span>
+<span class="nx">schema</span><span class="p">.</span><span class="nx">plugin</span><span class="p">(</span><span class="nx">keywordize</span><span class="p">,</span> <span class="nx">opts</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">'Person'</span><span class="p">,</span> <span class="nx">schema</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">me</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Person</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">'aaron'</span> <span class="p">});</span>
+<span class="nx">me</span><span class="p">.</span><span class="nx">title</span> <span class="o">=</span> <span class="s1">'Mister'</span><span class="p">;</span>
+<span class="nx">me</span><span class="p">.</span><span class="nx">keywordize</span><span class="p">();</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">me</span><span class="p">.</span><span class="nx">keywords</span><span class="p">)</span> <span class="c1">// ['aaron', 'Mister', 'Mr']</span>
+</pre>
+</div>
+
+
+<p>The optional function will be executed within the context of the document meaning we have access to the documents properties through the <code>this</code> keyword.</p>
+
+<p>Either a an Array or single string may be returned from the function and will be pushed onto the keywords array.</p>
+
+<h2>Casing</h2>
+
+<p>By default mongoose-keywordize lowercases the keywords. To preserve casing pass the <code>upper: true</code> option to the plugin.</p>
+
+<h2>Mongoose Version</h2>
+
+<p><code>&gt;= 2.x</code></p>
+
+<p><a href="https://github.com/aheckmann/mongoose-keywordize/blob/master/LICENSE">LICENCE</a></p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/aheckmann">aheckmann</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-30707590-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
