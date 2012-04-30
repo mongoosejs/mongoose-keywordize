@@ -36,6 +36,14 @@ me.save(function (err) {
 })
 ```
 
+Mongoose keywordize, by default, does not define an index on the "keywords" key.
+If you want to defined an index you should use the "index" option:
+
+```js
+var opts = {}
+opts.index = true
+```
+
 One may also pass an optional function to run custom logic within the call to `keywordize`.
 
 ```js
