@@ -124,22 +124,33 @@ describe('plugin', function () {
   
   describe('options', function(){
 
-        it('should allow defining keywords index', function(done){
-            var schema = new Schema({
-                title         : String,
-                description   : String
-            });
-            var options = {
-                fields    : [ 'title', 'description' ],
-                index     : true
-            };
-            schema.plugin( keywords, options );
-            schema.path('keywords')._index.should.be.true;
+    it('should allow defining keywords index', function(done){
+      var schema = new Schema({
+          title         : String
+        , description   : String
+      });
+      var options = {
+          fields    : [ 'title', 'description' ]
+        , index     : true
+      };
+      schema.plugin( keywords, options );
+      schema.path('keywords')._index.should.be.true;
 
-            done();
-        });
+      schema = new Schema({
+          title         : String
+        , description   : String
+      });
+      options = {
+          fields    : [ 'title', 'description' ]
+        , index     : { sparse: true }
+      };
+      schema.plugin( keywords, options );
+      schema.path('keywords')._index.should.eql({ sparse: true });
 
+      done();
     });
+
+  });
 
   after(function () {
     mongoose.disconnect();
