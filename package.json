@@ -15,8 +15,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "mongoose": "2.5.5",
-    "mocha": "0.10.1",
-    "should": "0.5.1"
+    "mongoose": "2.7.0",
+    "mocha": "0.10.1"
   }
 }
