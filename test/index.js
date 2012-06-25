@@ -1,8 +1,8 @@
 
 var mongoose = require('mongoose')
   , Schema = mongoose.Schema
+  , assert = require('assert')
   , keywords = require('../')
-  , should = require('should')
 
 mongoose.connect('localhost', 'mongoose_keywordize');
 
@@ -29,54 +29,54 @@ describe('plugin', function () {
   });
 
   it('should have a version', function () {
-    keywords.should.have.property('version');
+    assert.ok(keywords.hasOwnProperty('version'));
   });
 
   it('should create a keywords property of type array', function () {
-    Person.schema.path('keywords').casterConstructor.name.should.equal('SchemaString');
+    assert.equal(Person.schema.path('keywords').casterConstructor.name,'SchemaString');
     var p = new Person;
-    Array.isArray(p.keywords).should.be.true;
+    assert.equal(true, Array.isArray(p.keywords));
   });
 
   it('should add a keywordize method to the schema', function () {
-    Person.prototype.keywordize.should.be.a('function');
+    assert.equal('function', typeof Person.prototype.keywordize);
   });
 
   describe('keywordize', function () {
     it('should populate the keywords', function () {
       var p = new Person({ name: { last: 'heckmann' }});
-      p.keywords.length.should.equal(0);
+      assert.equal(0, p.keywords.length);
       p.keywordize();
-      p.keywords.length.should.equal(1);
+      assert.equal(1, p.keywords.length);
       p.name.first = 'aaron';
       p.keywordize();
-      p.keywords.length.should.equal(2);
+      assert.equal(2, p.keywords.length);
       p.tags = "one two three".split(" ");
       p.keywordize();
-      p.keywords.length.should.equal(3);
+      assert.equal(3, p.keywords.length);
       p.keywordize();
-      p.keywords.length.should.equal(3);
+      assert.equal(3, p.keywords.length);
     });
 
     it('should return the keywords', function () {
       var p = new Person({ name: { last: 'agent', first: 'smith' }});
-      p.keywordize().should.be.an.instanceof(Array);
-      p.keywordize().length.should.equal(2);
+      assert.ok(p.keywordize() instanceof Array);
+      assert.equal(2, p.keywordize().length);
     });
 
     it('should not allow duplicate keywords', function () {
       var p = new Person({ name: { last: 'smith', first: 'smith' }});
-      p.keywordize().length.should.equal(1);
+      assert.equal(1, p.keywordize().length);
     });
 
     it('should trim the keywords', function () {
       var p = new Person({ name: { last: ' smith  ' }});
-      p.keywordize()[0].should.equal('smith');
+      assert.equal(p.keywordize()[0],'smith');
     });
 
     it('should lowercase the keywords', function () {
       var p = new Person({ name: { last: 'SmiTh' }});
-      p.keywordize()[0].should.equal('smith');
+      assert.equal(p.keywordize()[0],'smith');
     });
 
     it('should not lowercase keywords', function () {
@@ -88,34 +88,34 @@ describe('plugin', function () {
       var A = mongoose.model('A', s);
       var a = new A;
       a.name = 'Stravinsky'
-      a.keywordize()[0].should.equal('Stravinsky');
+      assert.equal(a.keywordize()[0],'Stravinsky');
     });
   });
 
   describe('hooks', function () {
     it('should add the keywords when new', function (next) {
       var p = new Person({ name: { last: 'heckmann' }});
-      p.keywords.length.should.equal(0);
+      assert.equal(p.keywords.length,0);
       p.save(function (err) {
         if (err) return next(err);
-        p.keywords.length.should.equal(1);
-        p.keywords[0].should.equal('heckmann');
+        assert.equal(p.keywords.length,1);
+        assert.equal(p.keywords[0],'heckmann');
         next();
       });
     });
 
     it('should update the keywords if any field changed', function (next) {
       var p = new Person({ name: { last: 'heckmann' }});
-      p.keywords.length.should.equal(0);
+      assert.equal(p.keywords.length,0);
       p.save(function (err) {
         if (err) return next(err);
-        p.keywords.length.should.equal(1);
-        p.keywords[0].should.equal('heckmann');
+        assert.equal(p.keywords.length,1);
+        assert.equal(p.keywords[0],'heckmann');
         p.name.last = 'fuerstenau';
         p.save(function (err) {
           if (err) return next(err);
-          p.keywords.length.should.equal(1);
-          p.keywords[0].should.equal('fuerstenau');
+          assert.equal(p.keywords.length,1);
+          assert.equal(p.keywords[0],'fuerstenau');
           next();
         });
       });
@@ -134,7 +134,7 @@ describe('plugin', function () {
         , index     : true
       };
       schema.plugin( keywords, options );
-      schema.path('keywords')._index.should.be.true;
+      assert.equal(schema.path('keywords')._index,true);
 
       schema = new Schema({
           title         : String
@@ -145,7 +145,7 @@ describe('plugin', function () {
         , index     : { sparse: true }
       };
       schema.plugin( keywords, options );
-      schema.path('keywords')._index.should.eql({ sparse: true });
+      assert.deepEqual(schema.path('keywords')._index,{ sparse: true });
 
       done();
     });
