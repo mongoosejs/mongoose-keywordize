@@ -9,10 +9,11 @@ mongoose.connect('localhost', 'mongoose_keywordize');
 var schema = new Schema({
     name: { first: String, last: String }
   , tags: [String]
+  , langs: [String]
 });
 
 var opts = {};
-opts.fields = ['name.first', 'name.last'];
+opts.fields = ['name.first', 'name.last', 'langs'];
 opts.fn = function () {
   if (this.isModified('tags')) {
     return this.tags[1];
@@ -56,6 +57,9 @@ describe('plugin', function () {
       assert.equal(3, p.keywords.length);
       p.keywordize();
       assert.equal(3, p.keywords.length);
+      p.langs = ["English", "French"];
+      p.keywordize();
+      assert.equal(5, p.keywords.length);
     });
 
     it('should return the keywords', function () {
@@ -65,41 +69,47 @@ describe('plugin', function () {
     });
 
     it('should not allow duplicate keywords', function () {
-      var p = new Person({ name: { last: 'smith', first: 'smith' }});
+      var p = new Person({ name: { last: 'smith', first: 'smith' }, langs: ['smith']});
       assert.equal(1, p.keywordize().length);
     });
 
     it('should trim the keywords', function () {
-      var p = new Person({ name: { last: ' smith  ' }});
-      assert.equal(p.keywordize()[0],'smith');
+      var p = new Person({ name: { last: ' smith  ' }, langs: [' trimme ']});
+      assert.equal(p.keywordize()[1],'smith');
+      assert.equal(p.keywordize()[0],'trimme');
     });
 
     it('should lowercase the keywords', function () {
-      var p = new Person({ name: { last: 'SmiTh' }});
-      assert.equal(p.keywordize()[0],'smith');
+      var p = new Person({ name: { last: 'SmiTh' }, langs: ['Sup']});
+      assert.equal(p.keywordize()[0],'sup');
+      assert.equal(p.keywordize()[1],'smith');
     });
 
     it('should not lowercase keywords', function () {
       var s = new Schema({
           name: String
+        , langs: [String]
       });
-      var opts = { fields: 'name', upper: true };
+      var opts = { fields: ['name','langs'], upper: true };
       s.plugin(keywords, opts);
       var A = mongoose.model('A', s);
       var a = new A;
       a.name = 'Stravinsky'
       assert.equal(a.keywordize()[0],'Stravinsky');
+      a.langs = ['Rachmaninoff']
+      assert.equal(a.keywordize()[0],'Rachmaninoff');
     });
   });
 
   describe('hooks', function () {
     it('should add the keywords when new', function (next) {
-      var p = new Person({ name: { last: 'heckmann' }});
+      var p = new Person({ name: { last: 'heckmann' }, langs: ['jon']});
       assert.equal(p.keywords.length,0);
       p.save(function (err) {
         if (err) return next(err);
-        assert.equal(p.keywords.length,1);
-        assert.equal(p.keywords[0],'heckmann');
+        assert.equal(p.keywords.length,2);
+        assert.equal(p.keywords[0],'jon');
+        assert.equal(p.keywords[1],'heckmann');
         next();
       });
     });
@@ -116,12 +126,20 @@ describe('plugin', function () {
           if (err) return next(err);
           assert.equal(p.keywords.length,1);
           assert.equal(p.keywords[0],'fuerstenau');
-          next();
+          p.langs = ['Italian', 'Spanish'];
+          p.save(function (err) {
+            if (err) return next(err);
+            assert.equal(p.keywords.length,3);
+            assert.equal(p.keywords[0],'italian');
+            assert.equal(p.keywords[1],'spanish');
+            assert.equal(p.keywords[2],'fuerstenau');
+            next();
+          });
         });
       });
     });
   });
-  
+
   describe('options', function(){
 
     it('should allow defining keywords index', function(done){
@@ -157,5 +175,3 @@ describe('plugin', function () {
   });
 
 });
-
-
