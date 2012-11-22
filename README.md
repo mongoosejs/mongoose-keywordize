@@ -7,7 +7,9 @@ Provides keyword derivation for [Mongoose](http://mongoosejs.com) documents.
 Options:
 
   - fields: an array of paths you want watched and converted into keywords
-  - fn: a custom function to execute when keywordize() runs
+  - fn: a custom function to execute when keywordize() runs, pushes returned values to keyword array
+  - keywordField: provide your own name for the keywords field, defaults to `keywords`
+  - map: a custom function to run against each keyword before it's added to the keyword array
 
 Example:
 
@@ -68,6 +70,32 @@ console.log(me.keywords) // ['aaron', 'Mister', 'Mr']
 The optional function will be executed within the context of the document meaning we have access to the documents properties through the `this` keyword.
 
 Either a an Array or single string may be returned from the function and will be pushed onto the keywords array.
+
+Pass an optional `map` function to run against each keyword called by `keywordize`.
+The function is passed the `field name` and `value`.
+
+```js
+
+var opts = {};
+opts.fields = ['description', 'title']
+opts.map = function(field, value) {
+	// remove html entities from each keyword picked from description
+	if (field === 'description') {
+		return value.replace(/&#?[a-z0-9]{2,8};/ig, ' ');
+	} else {
+		return value;
+	}
+}
+var schema = new Schema({ description: String, title: String });
+schema.plugin(keywordize, opts);
+
+var Person = mongoose.model('Person', schema);
+var me = new Person({ name: 'aaron' });
+me.description = 'Tall&nbsp;&amp;&nbsp;Handsome';
+me.keywordize();
+console.log(me.keywords) // ['aaron', 'tall', 'handsome']
+```
+
 
 ## Casing
 
