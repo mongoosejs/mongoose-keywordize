@@ -57,12 +57,12 @@ To have the opportunity to pre-process field values as they're retreived by the 
 var opts = {};
 opts.fields = ['description', 'title']
 opts.pre = function (value, field) {
-	// remove html entities from each keyword picked from description
-	if ('description' == field) {
-		return value.replace(/&#?[a-z0-9]{2,8};/ig, ' ');
-	} else {
-		return value;
-	}
+  // remove html entities from each keyword picked from description
+  if ('description' == field) {
+    return value.replace(/&#?[a-z0-9]{2,8};/ig, ' ');
+  } else {
+    return value;
+  }
 }
 var schema = new Schema({ description: String, title: String });
 schema.plugin(keywordize, opts);
