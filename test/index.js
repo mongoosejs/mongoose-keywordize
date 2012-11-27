@@ -99,6 +99,49 @@ describe('plugin', function () {
       a.langs = ['Rachmaninoff']
       assert.equal(a.keywordize()[0],'Rachmaninoff');
     });
+
+    it('should accept alternate keyword fields', function () {
+      var s = new Schema({
+          name: String
+        , langs: [String]
+      });
+      var opts = { fields: ['name','langs'], upper: true, keywordField: 'tags' };
+      s.plugin(keywords, opts);
+      var B = mongoose.model('B', s);
+      var b = new B;
+      b.name = 'Stravinsky'
+      b.langs = ['Rachmaninoff']
+      b.keywordize()
+      assert.ok(Array.isArray(b.tags));
+      assert.equal(2, b.tags.length);
+      assert.equal(undefined, b.keywords);
+    });
+
+    it('should allow pre-processing', function () {
+      var s = new Schema({
+          name: String
+        , langs: [String]
+      });
+
+      // ignore name
+      function pre (val, field) {
+        if ('name' == field) {
+          return undefined;
+        }
+        return val;
+      }
+
+      var opts = { fields: ['name','langs'], pre: pre };
+      s.plugin(keywords, opts);
+      var C = mongoose.model('C', s);
+      var c = new C;
+      c.name = 'Stravinsky Was Here';
+      c.langs = ['Rachmaninoff'];
+      c.keywordize();
+      assert.ok(Array.isArray(c.keywords));
+      assert.equal(1, c.keywords.length);
+      assert.equal('rachmaninoff', c.keywords[0]);
+    });
   });
 
   describe('hooks', function () {
